@@ -2,121 +2,104 @@ const router = require('express').Router()
 const bodyParser = require('body-parser')
 const Graph = require("graph-data-structure");
 const Graphology = require('graphology')
-
 const allSimplePaths = require('graphology-simple-path').allSimplePaths
 
+const Devices = require('./constants').Devices
+const ErrorMessages = require('./errors')
 
-
-
+/** create graph data structure **/
 var grapho = new Graphology()
 var graph = Graph();
 
+const middleware = require('./middleware')
+
+/** temp maps for storing node data */
 const deviceTypes = new Map()
 const deviceStrengths = new Map()
 
-
+/** middleware */
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: false }))
 
-router.get('/', (req, res) => {
-    console.log('get request on /');
-    res.json({ response: 'connection succeeded' })
-})
+
+/** rest api documentation page */
+router.get('/', (req, res) => res.sendFile(__dirname + '/index.html'))
 
 
-
-
-/** 
- * Add a new device to network 
- * content-type : application/json
- * {"type" : "COMPUTER", "name" : "A1"}
- */
-router.post('/devices', (req, res) => {
-    console.log('INFO : creating a device')
+/** Add a new device to network */
+router.post('/devices', middleware.validateAdddingDevice, (req, res) => {
     let newNode = req.body.name
-    graph.addNode(newNode);
 
+    graph.addNode(newNode)
     grapho.addNode(newNode)
 
-    if (req.body.type == 'COMPUTER') {
+    if (req.body.type == Devices.COMPUTER) {
         deviceStrengths.set(req.body.name, 5)
     }
-    deviceTypes.set(req.body.name, req.body.type)
+    deviceTypes.set(newNode, req.body.type)
     res.json({ currentState: graph.serialize() })
 })
 
 
-/** 
- * create connections between devices 
- * input format is {source: 'src_end', targets: [target1, target2...]}
- */
-router.post('/connections', (req, res) => {
-    console.log('INFO : creating connections between devices')
-    console.log(req.body)
+/** create connections between devices  */
+router.post('/connections', middleware.validateConnectingDevices, (req, res) => {
     let source = req.body.source
-    var sourceType = deviceTypes.get(source)
-
     let targets = req.body.targets
+
     for (let ind in targets) {
         target = targets[ind]
-        let targetType = deviceTypes.get(target)
-        graph.addEdge(source, target)
-        graph.addEdge(target, source)
-
-        grapho.addEdge(source, target);
-        grapho.addEdge(target, source);
+        createConnection(source, target)
     }
-
 
     res.json({ currentState: graph.serialize() })
 })
 
+function createConnection(source, target) {
+    grapho.addEdge(source, target)
+    grapho.addEdge(target, source)
 
-/** 
- * List all devices in the network
- * content-type : application/json
- */
+    graph.addEdge(source, target)
+    graph.addEdge(target, source)    
+}
+
+/** List all devices in the network */
 router.get('/devices', (req, res) => {
-    console.log(req.body)
-    res.json({ deviceTypes })
+    devices = {}
+    for (const [key, value] of deviceTypes.entries()) {
+        devices[key] = value;
+    }
+    return res.json({ devices })
 })
 
-/** 
- * FETCH /info-routes?from=A1&to=A2
- * content-type : application/json
- */
+/** FETCH /info-routes?from=A1&to=A2 */
 router.get('/info-route', (req, res) => {
     let source = req.query.from
     let target = req.query.to
 
-    console.log(req.query)
+    // let shortestPath = graph.shortestPath(source, target)
 
-    console.log('INFO : Fetching route info from ' + source + ' to ' + target)
-    let shortestPath = graph.shortestPath(source, target)
-    console.log(shortestPath)
-    const paths = []
-    try{
-        paths = allSimplePaths(grapho, source, target);
-    } catch(err) {
-        return res.json({error: `No path exists between ${source} and ${target}`})
-    }
-    
+    const paths = allSimplePaths(grapho, source, target);
 
-    const possiblePath = "NOT_POSSIBLE";
+    if(!paths || paths.length == 0) 
+        return res.json({ err_message: ErrorMessages.NO_PATH_EXISTS })
+
+
+
+    var possiblePath = "NOT_POSSIBLE";
 
     // check if we can travel from src to target in any path with the given strengths
     for (let ind in paths) {
         let path = paths[ind]
 
-        if(isPossible(path)) {
+        if (isPossible(path)) {
             possiblePath = path;
             break;
-        } else{
+        } else {
             continue;
         }
     }
 
-    res.json({ shortestPath, paths, possiblePath })
+    res.json({ possiblePath })
 })
 
 
@@ -127,32 +110,27 @@ function isPossible(path) {
     for (var i = 1; i < path.length; i++) {
         signalStrength -= 1;
         if (signalStrength < 0) return false;
-        if(deviceTypes.get(path[i]) == 'ROUTER') {
+        if (deviceTypes.get(path[i]) == Devices.REPEATER) {
             signalStrength *= 2;
-        }        
+        }
     }
 
-    if(signalStrength > -1) return true;
+    if (signalStrength > -1) return true;
     return false;
 }
 
 
-/** 
- * MODIFY /devices/A1/strength 
- * CHANGE DEVICE STRENGTH
- * content-type : application/json
- * {"value": 2}
- */
+/** MODIFY /devices/A1/strength */
 router.post('/devices/:deviceId/strength', (req, res) => {
     let deviceId = req.params.deviceId
+    if(!isValidDeviceId(deviceId)) return res.json({error: ErrorMessages.DEVICE_DOES_NOT_EXIST})
+
     let strength = req.body.value
-    console.log('INFO : Setting device strength')
-    console.log(req.params)
-    deviceStrengths.set(deviceId, Number(value))
+    if(!Number(strength)) return res.json({error: ErrorMessages.STRENGTH_SHOULD_BE_A_NUMBER})
+
+    deviceStrengths.set(deviceId, Number(strength))
     res.json({ deviceStrengths })
 })
-
-
 
 
 module.exports = router

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<title>Ajira</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+<style>
+    .card-header :hover {
+        cursor: pointer;
+    }
+</style>
+
+<body>
+    <div class="w3-top">
+        <div class="w3-bar w3-white w3-wide w3-padding w3-card">
+            <div class="w3-bar-item"><b>AJIRA</b> Network Topology</div>
+        </div>
+    </div>
+
+    <div class="w3-content w3-padding" style="max-width:1564px; margin-top: 20px;">
+        <div class="w3-container w3-padding-32" id="projects">
+            <h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">REST API Documentation</h3>
+        </div>
+
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <div class="alert alert-primary" role="alert" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne">
+                            <span class="badge badge-success">POST </span> /ajira/process/devices
+                        </div>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <p><b>content-type : </b> application/json </p>
+                        <p><b>input-format : </b> {"type" : DEVICE_TYPE, "name" : DEVICE_ID} <b>Eg : </b> {"type" :
+                            "COMPUTER", "name" : "A1"} </p>
+                        <p><b>response-type : </b> application/json </p>
+                        <p><b>response : </b> Json representation of the graph if node addition succeeds else error </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <div class="alert alert-primary" role="alert" data-toggle="collapse" data-target="#collapseTwo"
+                            aria-expanded="true" aria-controls="collapseOne">
+                            <span class="badge badge-secondary">POST </span> /ajira/process/connections
+                        </div>
+                    </h5>
+                </div>
+
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <p><b>content-type : </b> application/json </p>
+                        <p><b>input-format : </b> {"source" : SOURCE_DEVICE_ID, "targets" : ARRAY_OF_TARGETS} <b>Eg :
+                            </b> {"source" : "A1", "targets" : ["A2", "A3"]} </p>
+                        <p><b>response-type : </b> application/json </p>
+                        <p><b>response : </b> Json representation of the graph if connection succeeds else error </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <div class="alert alert-success" role="alert" data-toggle="collapse"
+                            data-target="#collapseThree" aria-expanded="true" aria-controls="collapseOne">
+                            <span class="badge badge-secondary">GET </span> /ajira/process/devices
+                        </div>
+                    </h5>
+                </div>
+
+                <div id="collapseThree" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <p><b>content-type : </b> application/json </p>
+                        <p><b>input-format : </b> {"type" : DEVICE_TYPE, "name" : DEVICE_ID} <b>Eg : </b> {"type" :
+                            "COMPUTER", "name" : "A1"} </p>
+                        <p><b>response-type : </b> application/json </p>
+                        <p><b>response : </b> Json representation of the graph of node addition succeeds else error </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <div class="alert alert-success" role="alert" data-toggle="collapse" data-target="#collapseFour"
+                            aria-expanded="true" aria-controls="collapseOne">
+                            <span class="badge badge-secondary">GET </span>
+                            /ajira/process/info-routes?from={fromDeviceId}&to={toDeviceId}
+                        </div>
+                    </h5>
+                </div>
+
+                <div id="collapseFour" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <p><b>content-type : </b> application/json </p>
+                        <p><b>input-format : </b> fromDeviceId and toDeviceId </p>
+                        <p><b>response-type : </b> application/json </p>
+                        <p><b>response : </b> Array denoting the path from source node to target node if exists else
+                            error </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <div class="alert alert-primary" role="alert" data-toggle="collapse" data-target="#collapseFive"
+                            aria-expanded="true" aria-controls="collapseOne">
+                            <span class="badge badge-success">POST </span> /ajira/process/devices/{deviceId}/strength
+                        </div>
+                    </h5>
+                </div>
+
+                <div id="collapseFive" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <p><b>content-type : </b> application/json </p>
+                        <p><b>input-format : </b> {"value" : STRENGTH_VALUE} and {deviceId} in route params<b> Eg : </b> {"value" : 25} , query /ajira/process/devices/A1/strength</p>
+                        <p><b>response-type : </b> application/json </p>
+                        <p><b>response : </b> Strength of the device if set properly else error </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</body>
+
+</html>
